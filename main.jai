@@ -5,8 +5,10 @@
 
 #load "ray.jai";
 
-gen_color :: (r: Ray) -> Vector3
+gen_color :: (r: Ray, s: Sphere) -> Vector3
 {
+    if hit_sphere(r, s) then return Vector3.{1, 0, 0};
+
     dir := normalize(r.direction);
     t := 0.5*(dir.y + 1);
     return (1.0-t) * make_vector3(1, 1, 1) + t*make_vector3(0.5, 0.7, 1.0);
@@ -27,6 +29,10 @@ main :: ()
     vertical := make_vector3(0, 2, 0);
     origin := Vector3.{};
 
+    sphere: Sphere;
+    sphere.radius = 0.5;
+    sphere.center = .{0, 0, -2};
+
     print_to_builder(*builder, "P3\n");
     print_to_builder(*builder, "% %\n", width, height);
     print_to_builder(*builder, "255\n");
@@ -40,7 +46,7 @@ main :: ()
             ray: Ray;
             ray.origin = origin;
             ray.direction = lower_left_corner + u*horizontal + v*vertical;
-            color := gen_color(ray);
+            color := gen_color(ray, sphere);
 
             r: u32 = xx (color.x * 255.99);
             g: u32 = xx (color.y * 255.99);
