@@ -3,25 +3,48 @@
 #import "File";
 #import "stb_image_write";
 
+#load "ray.jai";
+
+gen_color :: (r: Ray) -> Vector3
+{
+    dir := normalize(r.direction);
+    t := 0.5*(dir.y + 1);
+    return (1.0-t) * make_vector3(1, 1, 1) + t*make_vector3(0.5, 0.7, 1.0);
+}
+
 main :: ()
 {
     builder: String_Builder;
 
-    width := 255;
-    height := 255;
+    width := 200;
+    height := 100;
     size := size_of(u32) * width * height;
     data: *u32 = alloc(size);
     head_ptr := data;
+
+    lower_left_corner := make_vector3(-2, -1, -1);
+    horizontal := make_vector3(4, 0, 0);
+    vertical := make_vector3(0, 2, 0);
+    origin := Vector3.{};
+
     print_to_builder(*builder, "P3\n");
     print_to_builder(*builder, "% %\n", width, height);
     print_to_builder(*builder, "255\n");
-    for y : 0 .. height-1
+    for < y : height-1 .. 0
     {
         for x : 0 .. width-1
         {
-            r: u32 = 255;
-            g: u32 = xx y;
-            b: u32 = xx x;
+            u: float = cast(float) x / width;
+            v: float = cast(float) y / xx height; 
+
+            ray: Ray;
+            ray.origin = origin;
+            ray.direction = lower_left_corner + u*horizontal + v*vertical;
+            color := gen_color(ray);
+
+            r: u32 = xx (color.x * 255.99);
+            g: u32 = xx (color.y * 255.99);
+            b: u32 = xx (color.z * 255.99);
             a: u32 = 255;
             // * Order is flipped RGBA -> ABGR
             << data = (a << 24) | (b << 16) | (g << 8) | r;
