@@ -19,9 +19,26 @@ Hit_Record :: struct
     normal: Vector3;
 }
 
+Camera :: struct
+{
+    origin: Vector3;
+    up: Vector3;
+    right: Vector3;
+    lower_left_corner: Vector3;
+}
+
 World :: struct 
 {
     spheres: [..] Sphere;
+}
+
+get_ray :: (camera: Camera, u: float, v: float) -> Ray
+{
+    ray: Ray;
+    ray.origin = camera.origin;
+    ray.direction = camera.lower_left_corner + u*camera.right + v*camera.up - camera.origin;
+
+    return ray;
 }
 
 add_sphere :: (world: *World, p: Vector3, r: float)

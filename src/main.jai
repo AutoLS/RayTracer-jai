@@ -2,6 +2,7 @@
 #import "String";
 #import "File";
 #import "stb_image_write";
+#import "Random";
 
 #load "ray.jai";
 
@@ -27,11 +28,12 @@ main :: ()
     size := size_of(u32) * width * height;
     data: *u32 = alloc(size);
     head_ptr := data;
+    n_samples := 100;
 
-    lower_left_corner := make_vector3(-2, -1, -1);
-    horizontal := make_vector3(4, 0, 0);
-    vertical := make_vector3(0, 2, 0);
-    origin := Vector3.{};
+    camera: Camera;
+    camera.lower_left_corner = make_vector3(-2, -1, -1);
+    camera.right = make_vector3(4, 0, 0);
+    camera.up = make_vector3(0, 2, 0);
 
     world: World;
     add_sphere(*world, .{0, 0, -1}, 0.5);
@@ -44,13 +46,16 @@ main :: ()
     {
         for x : 0 .. width-1
         {
-            u: float = cast(float) x / width;
-            v: float = cast(float) y / xx height; 
+            color: Vector3;
+            for 0 .. n_samples-1
+            {
+                u: float = (x + random_get_zero_to_one_open()) / cast(float)width;
+                v: float = (y + random_get_zero_to_one_open()) / cast(float)height;
 
-            ray: Ray;
-            ray.origin = origin;
-            ray.direction = lower_left_corner + u*horizontal + v*vertical;
-            color := gen_color(ray, *world);
+                ray := get_ray(camera, u, v);
+                color += gen_color(ray, *world);
+            }
+            color /= cast(float)n_samples;
 
             r: u32 = xx (color.x * 255.99);
             g: u32 = xx (color.y * 255.99);
