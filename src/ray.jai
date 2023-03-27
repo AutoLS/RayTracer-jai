@@ -81,7 +81,7 @@ hit_sphere :: (r: Ray, s: Sphere, t_max: float, hit_rec: *Hit_Record) -> bool
     t1 := (-b - sqrt(discriminant)) / (2*a);
     t2 := (-b + sqrt(discriminant)) / (2*a);
 
-    t_min := 0.0;
+    t_min := 0.0001;
 
     if t1 < t_max && t1 > t_min
     {

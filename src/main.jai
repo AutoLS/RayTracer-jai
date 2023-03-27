@@ -5,26 +5,33 @@
 #import "Random";
 
 #load "ray.jai";
+#load "math.jai";
 
 gen_color :: (r: Ray, world: *World) -> Vector3
 {
     hit_rec: Hit_Record;
     if hit_any(world, r, FLOAT32_MAX, *hit_rec)
     {
-        n := hit_rec.normal;
-        return 0.5*make_vector3(n.x+1, n.y+1, n.z+1);
+        target := hit_rec.p + hit_rec.normal + random_in_unit_sphere();
+        new_ray: Ray;
+        new_ray.origin = hit_rec.p;
+        new_ray.direction = target - hit_rec.p;
+        return 0.5*gen_color(new_ray, world);
     }
-    dir := normalize(r.direction);
-    t := 0.5*(dir.y + 1);
-    return (1.0-t) * make_vector3(1, 1, 1) + t*make_vector3(0.5, 0.7, 1.0);
+    else
+    {
+        dir := normalize(r.direction);
+        t := 0.5*(dir.y + 1);
+        return (1.0-t) * make_vector3(1, 1, 1) + t*make_vector3(0.5, 0.7, 1.0);
+    }
 }
 
 main :: ()
 {
     builder: String_Builder;
 
-    width := 200;
-    height := 100;
+    width := 400;
+    height := 200;
     size := size_of(u32) * width * height;
     data: *u32 = alloc(size);
     head_ptr := data;
@@ -56,6 +63,7 @@ main :: ()
                 color += gen_color(ray, *world);
             }
             color /= cast(float)n_samples;
+            color = make_vector3(sqrt(color.x), sqrt(color.y), sqrt(color.z));
 
             r: u32 = xx (color.x * 255.99);
             g: u32 = xx (color.y * 255.99);
