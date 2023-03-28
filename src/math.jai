@@ -9,3 +9,12 @@ random_in_unit_sphere :: () -> Vector3
 
     return p;
 }
+
+make_ImVec2 :: (x: float, y: float) -> ImGui.ImVec2
+{
+    ret: ImGui.ImVec2;
+    ret.x = x;
+    ret.y = y;
+
+    return ret;
+}
